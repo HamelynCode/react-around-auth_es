@@ -9,6 +9,10 @@ import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
+import { Route, Switch, withRouter } from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute';
+import Login from './Login';
+import Register from './Register';
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -17,6 +21,7 @@ function App() {
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
+  //const [loggedIn, setLoggedIn] = useState(false);
 
   const [cards, setCards] = useState([]);
 
@@ -120,26 +125,33 @@ function App() {
   }
 
   return (
-    <CurrentUserContext.Provider value={currentUser}>
     <div className="page">
-      <ImagePopup selectedCard={selectedCard} isOpen={isImagePopupOpen} onClose={closeAllPopups} />
-
-      <PopupWithForm id='form-delete' title='Estas seguro/a ?' isOpen={false} onClose={closeAllPopups} containerClass='form__body_confirm' submitText='Sí' />
-      
-      <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
-
-      <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
-
-      <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit}/>
-
       <Header />
+      <Switch>
 
-      <Main onEditProfileClick={handleEditProfileClick} onAddPlaceClick={handleAddPlaceClick} onEditAvatarClick={handleEditAvatarClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />
+        <Route path="/login">
+          <Login />
+        </Route>
 
-      <Footer />
+        <Route path="/register">
+          <Register />
+        </Route>
+
+        <ProtectedRoute path="/" loggedIn={false}>
+          <CurrentUserContext.Provider value={currentUser}>
+            <ImagePopup selectedCard={selectedCard} isOpen={isImagePopupOpen} onClose={closeAllPopups} />
+            <PopupWithForm id='form-delete' title='Estas seguro/a ?' isOpen={false} onClose={closeAllPopups} containerClass='form__body_confirm' submitText='Sí' />
+            <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
+            <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
+            <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit}/>
+            <Main onEditProfileClick={handleEditProfileClick} onAddPlaceClick={handleAddPlaceClick} onEditAvatarClick={handleEditAvatarClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />
+            <Footer />
+          </CurrentUserContext.Provider>
+        </ProtectedRoute>
+
+      </Switch>
     </div>
-    </CurrentUserContext.Provider>
   );
 }
 
-export default App;
+export default withRouter(App);
