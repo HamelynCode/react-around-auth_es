@@ -1,27 +1,16 @@
-import ImagePopup from './ImagePopup';
-import PopupWithForm from './PopupWithForm';
 import Header from './Header';
-import Main from './Main';
-import Footer from './Footer';
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
-import EditProfilePopup from './EditProfilePopup';
-import EditAvatarPopup from './EditAvatarPopup';
-import AddPlacePopup from './AddPlacePopup';
 import { Route, Switch, withRouter } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import Login from './Login';
 import Register from './Register';
+import MainPage from './MainPage';
 
 function App() {
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
-  //const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
 
   const [cards, setCards] = useState([]);
 
@@ -71,29 +60,6 @@ function App() {
     });
   }
 
-  function handleEditAvatarClick(){
-    setIsEditAvatarPopupOpen(true);
-  }
-  function handleEditProfileClick(){
-    setIsEditProfilePopupOpen(true);
-  }
-  function handleAddPlaceClick(){
-    setIsAddPlacePopupOpen(true);
-  }
-
-  function closeAllPopups(){
-    setIsEditAvatarPopupOpen(false);
-    setIsEditProfilePopupOpen(false);
-    setIsAddPlacePopupOpen(false);
-    setIsImagePopupOpen(false);
-    setSelectedCard({});
-  }
-
-  function handleCardClick(card){
-    setIsImagePopupOpen(true);
-    setSelectedCard(card);
-  }
-
   function handleUpdateUser(user) {
     api.editProfile(user.name, user.about).then((info)=>{
       setCurrentUser(info);
@@ -101,7 +67,6 @@ function App() {
     .catch((err) => {
       console.log(err);
     });
-    closeAllPopups();
   }
 
   function handleUpdateAvatar(data) {
@@ -111,7 +76,6 @@ function App() {
     .catch((err) => {
       console.log(err);
     });
-    closeAllPopups();
   }
 
   function handleAddPlaceSubmit(place) {
@@ -121,35 +85,28 @@ function App() {
     .catch((err) => {
       console.log(err);
     });
-    closeAllPopups();
   }
+
+  function handleRegister() {} //pasarlo a <Register>
+  function handleLogin() { setLoggedIn(true); } //pasarlo a <Login>
+  function handleSignout() { setLoggedIn(false); } //pasarlo a <Header>
 
   return (
     <div className="page">
-      <Header />
-      <Switch>
+      <CurrentUserContext.Provider value={currentUser}>
+        <Header handleClick={handleSignout} btnText="Sign out"/>
+        <Switch>
+          <Route path="/signin">
+            <Login />
+          </Route>
 
-        <Route path="/login">
-          <Login />
-        </Route>
+          <Route path="/signup">
+            <Register />
+          </Route>
 
-        <Route path="/register">
-          <Register />
-        </Route>
-
-        <ProtectedRoute path="/" loggedIn={false}>
-          <CurrentUserContext.Provider value={currentUser}>
-            <ImagePopup selectedCard={selectedCard} isOpen={isImagePopupOpen} onClose={closeAllPopups} />
-            <PopupWithForm id='form-delete' title='Estas seguro/a ?' isOpen={false} onClose={closeAllPopups} containerClass='form__body_confirm' submitText='Sí' />
-            <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
-            <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser}/>
-            <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlaceSubmit}/>
-            <Main onEditProfileClick={handleEditProfileClick} onAddPlaceClick={handleAddPlaceClick} onEditAvatarClick={handleEditAvatarClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />
-            <Footer />
-          </CurrentUserContext.Provider>
-        </ProtectedRoute>
-
-      </Switch>
+          <ProtectedRoute path="/" loggedIn={loggedIn} component={MainPage} cards={cards} handleCardLike={handleCardLike} handleCardDelete={handleCardDelete} handleUpdateUser={handleUpdateUser} handleUpdateAvatar={handleUpdateAvatar} handleAddPlaceSubmit={handleAddPlaceSubmit} />
+        </Switch>
+      </CurrentUserContext.Provider>
     </div>
   );
 }
