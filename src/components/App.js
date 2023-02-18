@@ -2,7 +2,7 @@ import Header from './Header';
 import { useEffect, useState } from 'react';
 import api from '../utils/api';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
-import { Route, Switch, withRouter } from 'react-router-dom';
+import { Route, Switch, useHistory, withRouter } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import Login from './Login';
 import Register from './Register';
@@ -13,6 +13,8 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(true);
 
   const [cards, setCards] = useState([]);
+
+  const history = useHistory();
 
   useEffect(()=>{
     api.getUserInfo()
@@ -94,17 +96,21 @@ function App() {
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
-        <Header handleClick={handleSignout} btnText="Sign out"/>
         <Switch>
           <Route path="/signin">
+            <Header btnText="Sign up" linkTo="/signup" />
             <Login />
           </Route>
 
           <Route path="/signup">
+            <Header btnText="Sign in" linkTo="/signin" />
             <Register />
           </Route>
 
-          <ProtectedRoute path="/" loggedIn={loggedIn} component={MainPage} cards={cards} handleCardLike={handleCardLike} handleCardDelete={handleCardDelete} handleUpdateUser={handleUpdateUser} handleUpdateAvatar={handleUpdateAvatar} handleAddPlaceSubmit={handleAddPlaceSubmit} />
+          <Route path="/">
+            <Header handleClick={handleSignout} userEmail={"email"} btnText="Sign out" linkTo="/signin" noLogo={true} />
+            <ProtectedRoute loggedIn={loggedIn} component={MainPage} cards={cards} handleCardLike={handleCardLike} handleCardDelete={handleCardDelete} handleUpdateUser={handleUpdateUser} handleUpdateAvatar={handleUpdateAvatar} handleAddPlaceSubmit={handleAddPlaceSubmit} />
+          </Route>
         </Switch>
       </CurrentUserContext.Provider>
     </div>
