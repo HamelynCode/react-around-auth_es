@@ -5,7 +5,8 @@ export const register = (password, email) => {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Content-Security-Policy': 'default-src self; img-src *; script-src self',
     },
     body: JSON.stringify({password, email})
   })
@@ -23,7 +24,8 @@ export const authorize = (password, email) => {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Content-Security-Policy': 'default-src self; img-src *; script-src self',
     },
     body: JSON.stringify({password, email})
   })
@@ -44,6 +46,7 @@ export const checkToken = (token) => {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
+      'Content-Security-Policy': 'default-src self; img-src *; script-src self',
     }
   })
   .then(res => res.json())
