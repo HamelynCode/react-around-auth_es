@@ -19,6 +19,10 @@
 @import url("./blocks/popup/popup.css");
 @import url("./blocks/popup/_hidden/popup_hidden.css");
 
+/*---- infoTooltip ----*/
+@import url("./blocks/infoTooltip/infoTooltip.css");
+@import url("./blocks/infoTooltip/__text/infoTooltip__text.css");
+
 /*---- page ----*/
 @import url("./blocks/page/page.css");
 

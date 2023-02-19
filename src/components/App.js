@@ -7,12 +7,18 @@ import ProtectedRoute from './ProtectedRoute';
 import Login from './Login';
 import Register from './Register';
 import MainPage from './MainPage';
+import InfoTooltip from './InfoTooltip';
 import * as auth from '../utils/auth';
+
+import registerDone from '../images/register-done-icon.png';
+import registerFail from '../images/register-fail-icon.png';
 
 function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
+  const [isRegisteredPopupOpen, setIsRegisteredPopupOpen] = useState(false);
+  const [isFailedPopupOpen, setIsFailedPopupOpen] = useState(false);
 
   const [cards, setCards] = useState([]);
 
@@ -108,8 +114,11 @@ function App() {
 
   function handleRegister(password, email) {
     auth.register(password, email).then((res)=>{
-      if (res) {
-        console.log('Registrado:', res);
+      if (res.data) {
+        history.push('/signin');
+        setIsRegisteredPopupOpen(true);
+      } else {
+        setIsFailedPopupOpen(true);
       }
     });
   }
@@ -121,7 +130,7 @@ function App() {
       }
     });
   }
-  
+
   function handleSignout() {
     if (localStorage.getItem('jwt')){
       localStorage.removeItem('jwt');
@@ -129,9 +138,16 @@ function App() {
     setLoggedIn(false);
   }
 
+  function closeInfoTooltip() {
+    setIsRegisteredPopupOpen(false);
+    setIsFailedPopupOpen(false);
+  }
+
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
+        <InfoTooltip isOpen={isRegisteredPopupOpen} onClose={closeInfoTooltip} iconUrl={registerDone} msg={'Success! You have now been registered.'} />
+        <InfoTooltip isOpen={isFailedPopupOpen} onClose={closeInfoTooltip} iconUrl={registerFail} msg={'Oops, something went wrong! Please try again.'} />
         <Switch>
           <Route path="/signin">
             <Header btnText="Sign up" linkTo="/signup" />
