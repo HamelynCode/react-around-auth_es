@@ -1,7 +1,7 @@
 import React from "react";
 import SessionForm from "./SessionForm";
 
-export default function Login() {
+export default function Login(props) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
@@ -18,6 +18,7 @@ export default function Login() {
 
   function handleSubmit(e) {
     e.preventDefault();
+    props.onLogin(password, email);
   }
 
   return (

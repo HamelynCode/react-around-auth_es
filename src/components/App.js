@@ -7,16 +7,33 @@ import ProtectedRoute from './ProtectedRoute';
 import Login from './Login';
 import Register from './Register';
 import MainPage from './MainPage';
+import * as auth from '../utils/auth';
 
 function App() {
   const [currentUser, setCurrentUser] = useState({});
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [email, setEmail] = useState('');
 
   const [cards, setCards] = useState([]);
 
   const history = useHistory();
 
   useEffect(()=>{
+    if (localStorage.getItem('jwt')){
+      const jwt = localStorage.getItem('jwt');
+      auth.checkToken(jwt).then((res) => {
+        if (res) {
+          showMainPage(res.data.email);
+        }
+      })
+    }
+  }, []);
+
+  function showMainPage(userEmail) {
+    setLoggedIn(true);
+    setEmail(userEmail);
+    history.push('/');
+
     api.getUserInfo()
     .then((info)=>{
       setCurrentUser(info);
@@ -31,7 +48,7 @@ function App() {
     .catch((err) => {
       console.log(err);
     });
-  }, []);
+  }
 
   function handleCardLike(card) {
     const isLiked = card.likes.some(i => i._id === currentUser._id);
@@ -89,9 +106,28 @@ function App() {
     });
   }
 
-  function handleRegister() {} //pasarlo a <Register>
-  function handleLogin() { setLoggedIn(true); } //pasarlo a <Login>
-  function handleSignout() { setLoggedIn(false); } //pasarlo a <Header>
+  function handleRegister(password, email) {
+    auth.register(password, email).then((res)=>{
+      if (res) {
+        console.log('Registrado:', res);
+      }
+    });
+  }
+
+  function handleLogin(password, email) {
+    auth.authorize(password, email).then((data)=>{
+      if(data){
+        showMainPage(email);
+      }
+    });
+  }
+  
+  function handleSignout() {
+    if (localStorage.getItem('jwt')){
+      localStorage.removeItem('jwt');
+    }
+    setLoggedIn(false);
+  }
 
   return (
     <div className="page">
@@ -99,16 +135,16 @@ function App() {
         <Switch>
           <Route path="/signin">
             <Header btnText="Sign up" linkTo="/signup" />
-            <Login />
+            <Login onLogin={handleLogin} />
           </Route>
 
           <Route path="/signup">
             <Header btnText="Sign in" linkTo="/signin" />
-            <Register />
+            <Register onRegister={handleRegister} />
           </Route>
 
           <Route path="/">
-            <Header handleClick={handleSignout} userEmail={"email"} btnText="Sign out" linkTo="/signin" noLogo={true} />
+            <Header handleClick={handleSignout} userEmail={email} btnText="Sign out" linkTo="/signin" noLogo={true} />
             <ProtectedRoute loggedIn={loggedIn} component={MainPage} cards={cards} handleCardLike={handleCardLike} handleCardDelete={handleCardDelete} handleUpdateUser={handleUpdateUser} handleUpdateAvatar={handleUpdateAvatar} handleAddPlaceSubmit={handleAddPlaceSubmit} />
           </Route>
         </Switch>

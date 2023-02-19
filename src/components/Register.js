@@ -1,7 +1,7 @@
 import React from "react";
 import SessionForm from "./SessionForm";
 
-export default function Register() {
+export default function Register(props) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
@@ -18,6 +18,7 @@ export default function Register() {
 
   function handleSubmit(e) {
     e.preventDefault();
+    props.onRegister(password, email);
   }
 
   return (
