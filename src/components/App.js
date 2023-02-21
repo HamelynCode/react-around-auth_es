@@ -25,7 +25,7 @@ function App() {
   const history = useHistory();
 
   useEffect(()=>{
-    if (localStorage.getItem('jwt')){
+    if (localStorage.getItem('jwt') & !loggedIn){
       const jwt = localStorage.getItem('jwt');
       auth.checkToken(jwt).then((res) => {
         if (res) {
@@ -33,7 +33,7 @@ function App() {
         }
       })
     }
-  }, []);
+  }, [showMainPage]);
 
   function showMainPage(userEmail) {
     setLoggedIn(true);
@@ -136,6 +136,7 @@ function App() {
       localStorage.removeItem('jwt');
     }
     setLoggedIn(false);
+    history.push('/signin');
   }
 
   function closeInfoTooltip() {
