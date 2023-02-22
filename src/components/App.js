@@ -25,7 +25,7 @@ function App() {
   const history = useHistory();
 
   useEffect(()=>{
-    if (localStorage.getItem('jwt') & !loggedIn){
+    if (localStorage.getItem('jwt')){
       const jwt = localStorage.getItem('jwt');
       auth.checkToken(jwt).then((res) => {
         if (res) {
